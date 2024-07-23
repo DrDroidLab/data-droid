@@ -1,5 +1,5 @@
 from enum import Enum
-from client.executors.executor_interface import ExecutorInterface
+from client.api_processors.executor_interface import ExecutorInterface
 
 
 class ApiSource(Enum):

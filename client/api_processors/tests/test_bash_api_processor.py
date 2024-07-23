@@ -1,5 +1,5 @@
 import pytest
-from client.executors.api.bash_api_processor import BashApiProcessor
+from client.api_processors.api.bash_api_processor import BashApiProcessor
 
 
 def test_bash_api_processor():

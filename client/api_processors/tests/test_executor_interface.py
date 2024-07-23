@@ -1,5 +1,5 @@
 import pytest
-from client.executors.executor_interface import ExecutorInterface
+from client.api_processors.executor_interface import ExecutorInterface
 
 
 class DummyExecutor(ExecutorInterface):

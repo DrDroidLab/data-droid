@@ -1,9 +1,10 @@
 import sys
 import os
-from client.executors.api.api_processor_facade import api_processor_facade
-from client.executors.api.api_processor import ApiSource
 
-sys.path.append('/Users/karanveersinghsirohi/DrDroidLabs/data-droid')
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..')))
+
+from client.api_processors.api.api_processor_facade import api_processor_facade
+from client.api_processors.api.api_processor import ApiSource
 
 
 def run_bash_command(command):
@@ -21,5 +22,5 @@ def run_bash_command(command):
 
 
 if __name__ == "__main__":
-    command = 'ls -l'
+    command = 'df -h'
     run_bash_command(command)

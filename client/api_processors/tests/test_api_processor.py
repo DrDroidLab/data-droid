@@ -1,5 +1,5 @@
 import pytest
-from client.executors.api.api_processor import ApiProcessor, ApiSource
+from client.api_processors.api.api_processor import ApiProcessor, ApiSource
 
 
 class TestApiProcessor(ApiProcessor):

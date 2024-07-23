@@ -1,8 +1,7 @@
 import pytest
-from client.executors.api.api_processor import ApiSource, ApiProcessor
-from client.executors.api.bash_api_processor import BashApiProcessor
-from client.executors.api.api_processor_facade import ApiProcessorFacade
-
+from client.api_processors.api.api_processor import ApiSource, ApiProcessor
+from client.api_processors.api.bash_api_processor import BashApiProcessor
+from client.api_processors.api.api_processor_facade import ApiProcessorFacade
 
 
 def test_api_processor_facade():
