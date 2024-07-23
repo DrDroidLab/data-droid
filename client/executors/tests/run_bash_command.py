@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append('/Users/karanveersinghsirohi/DrDroidLabs/droid-debugger')
+sys.path.append('/Users/karanveersinghsirohi/DrDroidLabs/data-droid')
 
 from client.executors.api.api_processor_facade import api_processor_facade
 from client.executors.api.api_processor import ApiSource
