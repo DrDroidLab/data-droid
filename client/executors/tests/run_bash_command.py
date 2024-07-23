@@ -1,10 +1,9 @@
 import sys
 import os
-
-sys.path.append('/Users/karanveersinghsirohi/DrDroidLabs/data-droid')
-
 from client.executors.api.api_processor_facade import api_processor_facade
 from client.executors.api.api_processor import ApiSource
+
+sys.path.append('/Users/karanveersinghsirohi/DrDroidLabs/data-droid')
 
 
 def run_bash_command(command):
@@ -24,4 +23,3 @@ def run_bash_command(command):
 if __name__ == "__main__":
     command = 'ls -l'
     run_bash_command(command)
-
