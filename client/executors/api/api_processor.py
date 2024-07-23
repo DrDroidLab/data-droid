@@ -1,4 +1,5 @@
 from enum import Enum
+from client.executors.executor_interface import ExecutorInterface
 
 
 class ApiSource(Enum):
@@ -6,7 +7,7 @@ class ApiSource(Enum):
     BASH = "BASH"
 
 
-class ApiProcessor:
+class ApiProcessor(ExecutorInterface):
     source: ApiSource = ApiSource.UNKNOWN
     configured = False
 
