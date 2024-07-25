@@ -1,6 +1,7 @@
 from source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
 from source_processors.bash_processor import BashProcessor
 from source_processors.kubectl_processor import KubectlProcessor
+from source_processors.postgres_db_processor import PostgresDBProcessor
 
 
 class ClientFactory:
@@ -16,3 +17,7 @@ class ClientFactory:
     @staticmethod
     def get_kubectl_client(api_server: str, token: str, ssl_ca_cert: str = None, ssl_ca_cert_path: str = None):
         return KubectlProcessor(api_server, token, ssl_ca_cert, ssl_ca_cert_path)
+
+    @staticmethod
+    def get_postgres_db_client(host: str, user: str, password: str, database: str, port: int):
+        return PostgresDBProcessor(host, user, password, database, port)
