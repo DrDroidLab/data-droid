@@ -15,9 +15,10 @@ class ClientFactory:
         return AWSCloudwatchProcessor(client_type, region, aws_access_key, aws_secret_key)
 
     @staticmethod
-    def get_kubectl_client(api_server: str, token: str, ssl_ca_cert: str = None, ssl_ca_cert_path: str = None):
-        return KubectlProcessor(api_server, token, ssl_ca_cert, ssl_ca_cert_path)
+    def get_kubectl_client(api_server: str, token: str, ssl_ca_cert_data: str = None, ssl_ca_cert_path: str = None):
+        return KubectlProcessor(api_server, token, ssl_ca_cert_data, ssl_ca_cert_path)
 
     @staticmethod
-    def get_postgres_db_client(host: str, user: str, password: str, database: str, port: int):
-        return PostgresDBProcessor(host, user, password, database, port)
+    def get_postgres_db_client(host: str, user: str, password: str, database: str, port: int = 5432,
+                               connect_timeout: int = None):
+        return PostgresDBProcessor(host, user, password, database, port, connect_timeout)

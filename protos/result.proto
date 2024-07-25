@@ -47,9 +47,7 @@ message TableResult {
 
   google.protobuf.StringValue raw_query = 1;
   google.protobuf.UInt64Value total_count = 2;
-  google.protobuf.UInt64Value limit = 3;
-  google.protobuf.UInt64Value offset = 4;
-  repeated TableRow rows = 5;
+  repeated TableRow rows = 3;
 }
 
 message ApiResponseResult {

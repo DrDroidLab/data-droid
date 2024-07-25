@@ -6,7 +6,6 @@ import tempfile
 from abc import ABC
 from google.protobuf.wrappers_pb2 import StringValue
 
-
 from protos.result_pb2 import ResultType, Result, BashCommandOutputResult
 from source_processors.processor import Processor
 from utils.proto_utils import proto_to_dict
@@ -17,16 +16,16 @@ logger = logging.getLogger(__name__)
 class KubectlProcessor(Processor, ABC):
     client = None
 
-    def __init__(self, api_server, token, ssl_ca_cert=None, ssl_ca_cert_path=None):
+    def __init__(self, api_server, token, ssl_ca_cert_data=None, ssl_ca_cert_path=None):
         self.__api_server = api_server
         self.__token = token
         self.__ca_cert = None
         if ssl_ca_cert_path:
             self.__ca_cert = ssl_ca_cert_path
-        elif ssl_ca_cert:
+        elif ssl_ca_cert_data:
             fp = tempfile.NamedTemporaryFile(delete=False)
             ca_filename = fp.name
-            cert_bs = base64.urlsafe_b64decode(ssl_ca_cert.encode('utf-8'))
+            cert_bs = base64.urlsafe_b64decode(ssl_ca_cert_data.encode('utf-8'))
             fp.write(cert_bs)
             fp.close()
             self.__ca_cert = ca_filename
@@ -112,7 +111,6 @@ class KubectlProcessor(Processor, ABC):
                                       f"--token={self.__token}",
                                       f"--insecure-skip-tls-verify=true"
                                   ] + cmd.split()
-
             try:
                 if i == 0:
                     process = subprocess.Popen(kubectl_command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
