@@ -295,3 +295,48 @@ class TextResult(google.protobuf.message.Message):
     def ClearField(self, field_name: typing.Literal["output", b"output"]) -> None: ...
 
 global___TextResult = TextResult
+
+@typing.final
+class Result(google.protobuf.message.Message):
+    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+    ERROR_FIELD_NUMBER: builtins.int
+    TYPE_FIELD_NUMBER: builtins.int
+    TIMESERIES_FIELD_NUMBER: builtins.int
+    TABLE_FIELD_NUMBER: builtins.int
+    API_RESPONSE_FIELD_NUMBER: builtins.int
+    BASH_COMMAND_OUTPUT_FIELD_NUMBER: builtins.int
+    TEXT_FIELD_NUMBER: builtins.int
+    LOGS_FIELD_NUMBER: builtins.int
+    type: global___ResultType.ValueType
+    @property
+    def error(self) -> google.protobuf.wrappers_pb2.StringValue: ...
+    @property
+    def timeseries(self) -> global___TimeseriesResult: ...
+    @property
+    def table(self) -> global___TableResult: ...
+    @property
+    def api_response(self) -> global___ApiResponseResult: ...
+    @property
+    def bash_command_output(self) -> global___BashCommandOutputResult: ...
+    @property
+    def text(self) -> global___TextResult: ...
+    @property
+    def logs(self) -> global___TableResult: ...
+    def __init__(
+        self,
+        *,
+        error: google.protobuf.wrappers_pb2.StringValue | None = ...,
+        type: global___ResultType.ValueType = ...,
+        timeseries: global___TimeseriesResult | None = ...,
+        table: global___TableResult | None = ...,
+        api_response: global___ApiResponseResult | None = ...,
+        bash_command_output: global___BashCommandOutputResult | None = ...,
+        text: global___TextResult | None = ...,
+        logs: global___TableResult | None = ...,
+    ) -> None: ...
+    def HasField(self, field_name: typing.Literal["api_response", b"api_response", "bash_command_output", b"bash_command_output", "error", b"error", "logs", b"logs", "result", b"result", "table", b"table", "text", b"text", "timeseries", b"timeseries"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["api_response", b"api_response", "bash_command_output", b"bash_command_output", "error", b"error", "logs", b"logs", "result", b"result", "table", b"table", "text", b"text", "timeseries", b"timeseries", "type", b"type"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["result", b"result"]) -> typing.Literal["timeseries", "table", "api_response", "bash_command_output", "text", "logs"] | None: ...
+
+global___Result = Result

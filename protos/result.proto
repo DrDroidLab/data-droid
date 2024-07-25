@@ -73,3 +73,17 @@ message BashCommandOutputResult {
 message TextResult {
   google.protobuf.StringValue output = 1;
 }
+
+
+message Result {
+  google.protobuf.StringValue error = 1;
+  ResultType type = 2;
+  oneof result {
+    TimeseriesResult timeseries = 101;
+    TableResult table = 102;
+    ApiResponseResult api_response = 103;
+    BashCommandOutputResult bash_command_output = 104;
+    TextResult text = 105;
+    TableResult logs = 106;
+  }
+}
