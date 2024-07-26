@@ -3,8 +3,8 @@ from abc import ABC
 
 import boto3
 
-from source_processors.processor import Processor
-from utils.time_utils import current_milli_time
+from client.source_processors.processor import Processor
+from client.utils.time_utils import current_milli_time
 
 logger = logging.getLogger(__name__)
 

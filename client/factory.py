@@ -1,7 +1,7 @@
-from source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
-from source_processors.bash_processor import BashProcessor
-from source_processors.kubectl_processor import KubectlProcessor
-from source_processors.postgres_db_processor import PostgresDBProcessor
+from client.source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
+from client.source_processors.bash_processor import BashProcessor
+from client.source_processors import KubectlProcessor
+from client.source_processors import PostgresDBProcessor
 
 
 class ClientFactory:

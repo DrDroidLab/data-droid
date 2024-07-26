@@ -6,8 +6,8 @@ from psycopg2 import extras
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 
 from protos.result_pb2 import Result, ResultType, TableResult
-from source_processors.processor import Processor
-from utils.proto_utils import proto_to_dict
+from client.source_processors.processor import Processor
+from client.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
 
