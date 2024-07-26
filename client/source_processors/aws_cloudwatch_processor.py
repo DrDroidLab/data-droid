@@ -22,7 +22,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
         self.client_type = client_type
         self.__aws_access_key = aws_access_key
         self.__aws_secret_key = aws_secret_key
-        self.region = region,
+        self.region = region
         self.__aws_session_token = None
 
     def get_connection(self):
@@ -144,7 +144,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
                     if not results:
                         raise Exception(f"No data returned from Cloudwatch Logs for query: {query_pattern}")
                     table_rows: [TableResult.TableRow] = []
-                    for item in response:
+                    for item in results:
                         table_columns: [TableResult.TableColumn] = []
                         for i in item:
                             table_column = TableResult.TableColumn(name=StringValue(value=i['field']),
