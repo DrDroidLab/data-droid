@@ -111,7 +111,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 datapoints=metric_datapoints
             )]
             metric_metadata = f"{namespace} {metric} {statistic}"
-            for i in dimensions:
+            for i in dimensions_list:
                 metric_metadata += f"{i['Name']}:{i['Value']},  "
             timeseries_result = TimeseriesResult(metric_expression=StringValue(value=metric),
                                                  metric_name=StringValue(value=metric_metadata),
