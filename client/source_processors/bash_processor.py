@@ -6,7 +6,7 @@ from abc import ABC
 import paramiko as paramiko
 from google.protobuf.wrappers_pb2 import StringValue
 
-from protos.result_pb2 import BashCommandOutputResult, Result, ResultType
+from client.protos.result_pb2 import BashCommandOutputResult, ResultType, Result
 from client.source_processors.processor import Processor
 from client.utils.proto_utils import proto_to_dict
 

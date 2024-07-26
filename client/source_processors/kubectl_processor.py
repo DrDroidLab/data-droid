@@ -6,7 +6,7 @@ import tempfile
 from abc import ABC
 from google.protobuf.wrappers_pb2 import StringValue
 
-from protos.result_pb2 import ResultType, Result, BashCommandOutputResult
+from client.protos.result_pb2 import BashCommandOutputResult, Result, ResultType
 from client.source_processors.processor import Processor
 from client.utils.proto_utils import proto_to_dict
 
