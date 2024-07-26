@@ -48,9 +48,8 @@ data = aws_cw_client.logs_filter_events(log_group="log_group_name",
 
 ```
 
-## Connect with us
+## Contributing
 
-Visit [Doctor Droid website](https://drdroid.io?utm_param=github-py) for getting early access.
-Go through our [documentation](https://docs.drdroid.io?utm_param=github-py) to learn more.
+If you're interested in contributing to the SDK, please start with reading the files in /source_processors.
 
-For any queries, reach out at [mohit.goyal@drdroid.io](mailto:mohit.goyal@drdroid.io).
+Join our [Slack community](https://join.slack.com/t/doctor-droid-demo/shared_invite/zt-2h6eap61w-Bmz76OEU6IykmDy673R1qQ).
