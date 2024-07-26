@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class KubectlProcessor(Processor, ABC):
     client = None
 
-    def __init__(self, api_server, token, ssl_ca_cert_data=None, ssl_ca_cert_path=None):
+    def __init__(self, api_server: str, token: str, ssl_ca_cert_data: str = None, ssl_ca_cert_path: str = None):
         self.__api_server = api_server
         self.__token = token
         self.__ca_cert = None

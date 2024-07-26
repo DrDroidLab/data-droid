@@ -1,9 +1,14 @@
 import logging
 from abc import ABC
+from datetime import datetime
 
 import boto3
+import pytz as pytz
+from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, DoubleValue
 
+from client.protos.result_pb2 import TableResult, Result, ResultType, TimeseriesResult, LabelValuePair
 from client.source_processors.processor import Processor
+from client.utils.proto_utils import proto_to_dict
 from client.utils.time_utils import current_milli_time
 
 logger = logging.getLogger(__name__)
@@ -49,7 +54,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
             logger.error(f"Exception occurred while testing cloudwatch connection with error: {e}")
             raise e
 
-    def cloudwatch_get_metric_statistics(self, namespace, metric, start_time, end_time, period, statistics, dimensions):
+    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, start_time: datetime, end_time: datetime,
+                                         dimensions, period: int = 300, statistic: str = 'Average'):
         try:
             client = self.get_connection()
             response = client.get_metric_statistics(
@@ -58,10 +64,45 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 StartTime=start_time,
                 EndTime=end_time,
                 Period=period,
-                Statistics=statistics,
+                Statistics=[statistic],
                 Dimensions=dimensions
             )
-            return response
+            if not response or not response['Datapoints']:
+                raise Exception(f"No data returned from Cloudwatch for namespace: {namespace} and metric: {metric}")
+            response_datapoints = response['Datapoints']
+            if len(response_datapoints) > 0:
+                metric_unit = response_datapoints[0]['Unit']
+            else:
+                metric_unit = ''
+
+            metric_datapoints: [TimeseriesResult.LabeledMetricTimeseries.Datapoint] = []
+            for item in response_datapoints:
+                utc_timestamp = str(item['Timestamp'])
+                utc_datetime = datetime.fromisoformat(utc_timestamp)
+                utc_datetime = utc_datetime.replace(tzinfo=pytz.UTC)
+                val = item[statistic]
+                datapoint = TimeseriesResult.LabeledMetricTimeseries.Datapoint(
+                    timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
+                metric_datapoints.append(datapoint)
+
+            labeled_metric_timeseries = [TimeseriesResult.LabeledMetricTimeseries(
+                metric_label_values=[
+                    LabelValuePair(name=StringValue(value='namespace'), value=StringValue(value=namespace)),
+                    LabelValuePair(name=StringValue(value='statistic'),
+                                   value=StringValue(value=statistic)),
+                ],
+                unit=StringValue(value=metric_unit),
+                datapoints=metric_datapoints
+            )]
+            metric_metadata = f"{namespace} {metric} {statistic}"
+            for i in dimensions:
+                metric_metadata += f"{i['Name']}:{i['Value']},  "
+            timeseries_result = TimeseriesResult(metric_expression=StringValue(value=metric),
+                                                 metric_name=StringValue(value=metric_metadata),
+                                                 labeled_metric_timeseries=labeled_metric_timeseries)
+
+            task_result = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(
                 f"Exception occurred while fetching cloudwatch metric statistics for metric: {metric} with error: {e}")
@@ -80,13 +121,13 @@ class AWSCloudwatchProcessor(Processor, ABC):
             logger.error(f"Exception occurred while fetching log groups with error: {e}")
             raise e
 
-    def logs_filter_events(self, log_group, query_pattern, start_time, end_time):
+    def logs_filter_events(self, log_group: str, query_pattern: str, start_time_millis: int, end_time_millis: int):
         try:
             client = self.get_connection()
             start_query_response = client.start_query(
                 logGroupName=log_group,
-                startTime=start_time,
-                endTime=end_time,
+                startTime=start_time_millis,
+                endTime=end_time_millis,
                 queryString=query_pattern,
             )
 
@@ -99,7 +140,26 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 response = client.get_query_results(queryId=query_id)
                 status = response['status']
                 if status == 'Complete':
-                    return response['results']
+                    results = response['results']
+                    if not results:
+                        raise Exception(f"No data returned from Cloudwatch Logs for query: {query_pattern}")
+                    table_rows: [TableResult.TableRow] = []
+                    for item in response:
+                        table_columns: [TableResult.TableColumn] = []
+                        for i in item:
+                            table_column = TableResult.TableColumn(name=StringValue(value=i['field']),
+                                                                   value=StringValue(value=i['value']))
+                            table_columns.append(table_column)
+                        table_row = TableResult.TableRow(columns=table_columns)
+                        table_rows.append(table_row)
+
+                    result = TableResult(
+                        raw_query=StringValue(value="query_pattern"),
+                        rows=table_rows,
+                        total_count=UInt64Value(value=len(table_rows)),
+                    )
+                    task_result = Result(type=ResultType.LOGS, logs=result)
+                    return proto_to_dict(task_result)
                 elif current_milli_time() - query_start_time > 60000:
                     logger.info("Query took too long to complete. Aborting...")
                     stop_query_response = client.stop_query(queryId=query_id)

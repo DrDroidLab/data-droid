@@ -4,7 +4,7 @@ from client.source_processors.kubectl_processor import KubectlProcessor
 from client.source_processors.postgres_db_processor import PostgresDBProcessor
 
 
-class ClientFactory:
+class DataFactory:
 
     @staticmethod
     def get_bash_client(remote_server: str, pem_passphrase: str = None, pem: str = None):
