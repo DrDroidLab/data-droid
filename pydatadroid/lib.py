@@ -7,8 +7,8 @@ from pydatadroid.source_processors.postgres_db_processor import PostgresDBProces
 class DataFactory:
 
     @staticmethod
-    def get_bash_client(remote_server: str, pem_passphrase: str = None, pem: str = None):
-        return BashProcessor(remote_server, pem_passphrase, pem)
+    def get_bash_client(remote_server: str, pem_passphrase: str = None, pem_str: str = None, pem_path: str = None):
+        return BashProcessor(remote_server, pem_passphrase, pem_str, pem_path)
 
     @staticmethod
     def get_aws_cloudwatch_client(client_type: str, region: str, aws_access_key: str, aws_secret_key: str):
