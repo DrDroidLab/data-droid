@@ -6,9 +6,9 @@ from abc import ABC
 import paramiko as paramiko
 from google.protobuf.wrappers_pb2 import StringValue
 
-from client.protos.result_pb2 import BashCommandOutputResult, ResultType, Result
-from client.source_processors.processor import Processor
-from client.utils.proto_utils import proto_to_dict
+from pydatadroid.protos.result_pb2 import BashCommandOutputResult, ResultType, Result
+from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +111,7 @@ class BashProcessor(Processor, ABC):
             logger.error(f"Exception occurred while creating remote connection with error: {e}")
             raise e
 
-    def execute_commands(self, commands: []):
+    def execute_commands(self, commands: [str]):
         try:
             client = self.get_connection()
             try:

@@ -1,15 +1,16 @@
 import logging
 from abc import ABC
 from datetime import datetime
+from typing import Dict
 
 import boto3
 import pytz as pytz
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value, DoubleValue
 
-from client.protos.result_pb2 import TableResult, Result, ResultType, TimeseriesResult, LabelValuePair
-from client.source_processors.processor import Processor
-from client.utils.proto_utils import proto_to_dict
-from client.utils.time_utils import current_milli_time
+from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType, TimeseriesResult, LabelValuePair
+from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
+from pydatadroid.utils.time_utils import current_milli_time, current_epoch
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class AWSCloudwatchProcessor(Processor, ABC):
     def __init__(self, client_type: str, region: str, aws_access_key: str, aws_secret_key: str):
         if client_type not in ['cloudwatch', 'logs']:
-            raise ValueError("Invalid client type provided for AWS Cloudwatch Processor")
+            raise ValueError("Invalid pydatadroid type provided for AWS Cloudwatch Processor")
 
         self.client_type = client_type
         self.__aws_access_key = aws_access_key
@@ -32,7 +33,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
                                   aws_session_token=self.__aws_session_token)
             return client
         except Exception as e:
-            logger.error(f"Exception occurred while creating boto3 client with error: {e}")
+            logger.error(f"Exception occurred while creating boto3 pydatadroid with error: {e}")
             raise e
 
     def test_connection(self):
@@ -45,7 +46,9 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 else:
                     raise Exception("No metrics found in the cloudwatch connection")
             elif self.client_type == 'logs':
-                log_groups = self._logs_describe_log_groups()
+                client = self.get_connection()
+                response = client.describe_log_groups()
+                log_groups = response['logGroups']
                 if log_groups:
                     return True
                 else:
@@ -54,8 +57,21 @@ class AWSCloudwatchProcessor(Processor, ABC):
             logger.error(f"Exception occurred while testing cloudwatch connection with error: {e}")
             raise e
 
-    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, start_time: datetime, end_time: datetime,
-                                         dimensions, period: int = 300, statistic: str = 'Average'):
+    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, end_time_epoch: int = None,
+                                         start_time_epoch: int = None, dimensions: Dict = None, period: int = 300,
+                                         statistic: str = 'Average'):
+        if not end_time_epoch:
+            end_time_epoch = current_epoch()
+        if not start_time_epoch:
+            start_time_epoch = end_time_epoch - 3600
+
+        dimensions_list = []
+        if dimensions:
+            for key, value in dimensions.items():
+                dimensions_list.append({'Name': key, 'Value': value})
+
+        start_time = datetime.utcfromtimestamp(start_time_epoch)
+        end_time = datetime.utcfromtimestamp(end_time_epoch)
         try:
             client = self.get_connection()
             response = client.get_metric_statistics(
@@ -65,7 +81,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 EndTime=end_time,
                 Period=period,
                 Statistics=[statistic],
-                Dimensions=dimensions
+                Dimensions=dimensions_list
             )
             if not response or not response['Datapoints']:
                 raise Exception(f"No data returned from Cloudwatch for namespace: {namespace} and metric: {metric}")
@@ -108,20 +124,15 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 f"Exception occurred while fetching cloudwatch metric statistics for metric: {metric} with error: {e}")
             raise e
 
-    def _logs_describe_log_groups(self):
-        try:
-            client = self.get_connection()
-            paginator = client.get_paginator('describe_log_groups')
-            log_groups = []
-            for page in paginator.paginate():
-                for log_group in page['logGroups']:
-                    log_groups.append(log_group['logGroupName'])
-            return log_groups
-        except Exception as e:
-            logger.error(f"Exception occurred while fetching log groups with error: {e}")
-            raise e
+    def logs_filter_events(self, log_group: str, query_pattern: str, end_time_epoch: int = None,
+                           start_time_epoch: int = None):
+        if not end_time_epoch:
+            end_time_epoch = current_epoch()
+        if not start_time_epoch:
+            start_time_epoch = end_time_epoch - 3600
 
-    def logs_filter_events(self, log_group: str, query_pattern: str, start_time_millis: int, end_time_millis: int):
+        end_time_millis = end_time_epoch * 1000
+        start_time_millis = start_time_epoch * 1000
         try:
             client = self.get_connection()
             start_query_response = client.start_query(

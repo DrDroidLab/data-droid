@@ -1,7 +1,7 @@
-from client.source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
-from client.source_processors.bash_processor import BashProcessor
-from client.source_processors.kubectl_processor import KubectlProcessor
-from client.source_processors.postgres_db_processor import PostgresDBProcessor
+from pydatadroid.source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
+from pydatadroid.source_processors.bash_processor import BashProcessor
+from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
+from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
 
 
 class DataFactory:

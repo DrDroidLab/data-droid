@@ -6,9 +6,9 @@ import tempfile
 from abc import ABC
 from google.protobuf.wrappers_pb2 import StringValue
 
-from client.protos.result_pb2 import BashCommandOutputResult, Result, ResultType
-from client.source_processors.processor import Processor
-from client.utils.proto_utils import proto_to_dict
+from pydatadroid.protos.result_pb2 import BashCommandOutputResult, Result, ResultType
+from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
 
