@@ -15,11 +15,16 @@ logger = logging.getLogger(__name__)
 
 class BashProcessor(Processor, ABC):
 
-    def __init__(self, remote_server: str, pem_passphrase: str = None, pem: str = None):
+    def __init__(self, remote_server: str, pem_passphrase: str = None, pem_str: str = None, pem_path: str = None):
         self.remote_user = remote_server.split("@")[0]
         self.remote_host = remote_server.split("@")[1]
         self.pem_passphrase = pem_passphrase
-        self.pem = pem.strip()
+        self.pem = None
+        if pem_path:
+            with open(pem_path, 'r') as pem_file:
+                self.pem = pem_file.read().strip()
+        elif pem_str:
+            self.pem = pem_str.strip()
 
     def get_connection(self):
         try:
