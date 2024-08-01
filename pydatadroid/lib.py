@@ -2,7 +2,7 @@ from pydatadroid.source_processors.aws_cloudwatch_processor import AWSCloudwatch
 from pydatadroid.source_processors.bash_processor import BashProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
-
+from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiApiProcessor
 
 class DataFactory:
 
@@ -22,3 +22,7 @@ class DataFactory:
     def get_postgres_db_client(host: str, user: str, password: str, database: str, port: int = 5432,
                                connect_timeout: int = None):
         return PostgresDBProcessor(host, user, password, database, port, connect_timeout)
+
+    @staticmethod
+    def get_grafana_loki_client(host: str, port: int, protocol: str, x_scope_org_id: str='anonymous', ssl_verify: bool=True):
+        return GrafanaLokiApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
