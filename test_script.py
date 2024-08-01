@@ -10,7 +10,6 @@ def load_config(file_path):
         return yaml.safe_load(file)
 
 
-
 if __name__ == '__main__':
     
     config = load_config("test_credentials/credentials.yaml")
@@ -141,3 +140,47 @@ if __name__ == '__main__':
             print("\n grafana_loki credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_loki: ", e)
+
+    try:
+        if 'grafana_promql' in config:
+            print("\n Testing Grafana promql Connector")
+            host = config.get('grafana_promql',{}).get('host')
+            port = config.get('grafana_promql',{}).get('port')
+            protocol = config.get('grafana_promql',{}).get('protocol')
+            api_key = config.get('grafana_promql',{}).get('api_key')
+            ssl_verify = config.get('grafana_promql',{}).get('ssl_verify',True)
+            promql_client = DataFactory.get_grafana_promql_client(host, port, protocol, api_key, ssl_verify)
+            if not promql_client.test_connection():
+                raise Exception("Connection to Grafana promql failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                datasource_uid = "dbfa7a5f-f8bd-49f2-8ea3-8e16832d572a"
+                query = 'sum(rate(status_counter[1m]))'
+                promql_output = promql_client.query(datasource_uid, query)
+                print("\n Sample output from grafana_promql:\n", promql_output)
+        else:
+            print("\n grafana_promql credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in grafana_promql: ", e)
+    
+    try:
+        if 'grafana_mimir' in config:
+            print("\n Testing Grafana Mimir Connector")
+            host = config.get('grafana_mimir',{}).get('host')
+            port = config.get('grafana_mimir',{}).get('port')
+            protocol = config.get('grafana_mimir',{}).get('protocol')
+            x_scope_org_id = config.get('grafana_mimir',{}).get('x_scope_org_id')
+            ssl_verify = config.get('grafana_mimir',{}).get('ssl_verify',True)
+            mimir_client = DataFactory.get_grafana_mimir_client(host, port, protocol, x_scope_org_id, ssl_verify)
+            if not mimir_client.test_connection():
+                raise Exception("Connection to Grafana Mimir failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                query = 'histogram_quantile(0.99, sum by (le) (cluster_job_route:cortex_request_duration_seconds_bucket:sum_rate{cluster=~"demo", job=~"(demo)/((distributor.|cortex|mimir|mimir-write.))", route=~"/distributor.Distributor/Push|/httpgrpc.*|api_(v1|prom)_push|otlp_v1_metrics"})) * 1e3'
+                mimir_output = mimir_client.query(query)
+                print("\n Sample output from Grafana Mimir:\n", mimir_output)
+        else:
+            print("\n grafana_mimir credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in grafana_mimir: ", e)
+    
