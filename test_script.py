@@ -120,3 +120,24 @@ if __name__ == '__main__':
             print("\n postgres_db credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in postgres_db: ", e)
+
+    try:
+        if 'grafana_loki' in config:
+            print("\n Testing Grafana Loki Connector")
+            host = config.get('grafana_loki',{}).get('host')
+            port = config.get('grafana_loki',{}).get('port')
+            protocol = config.get('grafana_loki',{}).get('protocol')
+            x_scope_org_id = config.get('grafana_loki',{}).get('x_scope_org_id')
+            ssl_verify = config.get('grafana_loki',{}).get('ssl_verify',True)
+            loki_client = DataFactory.get_grafana_loki_client(host, port, protocol, x_scope_org_id, ssl_verify)
+            if not loki_client.test_connection():
+                raise Exception("Connection to Grafana Loki failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                query = '{job="python-logger"}'
+                loki_output = loki_client.query(query)
+                print("\n Sample output from Grafana Loki:\n", loki_output)
+        else:
+            print("\n grafana_loki credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in grafana_loki: ", e)

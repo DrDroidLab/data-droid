@@ -21,6 +21,15 @@ class GrafanaLokiApiProcessor(Processor):
         self.__ssl_verify = ssl_verify
         self.__headers = {'X-Scope-OrgID': x_scope_org_id}
 
+
+    def get_connection(self):
+        try:
+            url = '{}/ready'.format(f"{self.__protocol}://{self.__host}:{self.__port}")
+            return url
+        except Exception as e:
+            logger.error(f"Exception occurred while testing Loki connection with error: {e}")
+            raise e
+
     def test_connection(self):
         try:
             url = '{}/ready'.format(f"{self.__protocol}://{self.__host}:{self.__port}")
@@ -35,7 +44,7 @@ class GrafanaLokiApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e
 
-    def query(self, query, start, end, limit=1000):
+    def query(self, query, start: int=None, end: int=None, limit=1000):
         try:
             url = '{}/loki/api/v1/query_range'.format(f"{self.__protocol}://{self.__host}:{self.__port}")
             params = {
