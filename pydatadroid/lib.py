@@ -4,6 +4,7 @@ from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
 from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiApiProcessor
 from pydatadroid.source_processors.grafana_promql_processor import GrafanaPromqlProcessor
+from pydatadroid.source_processors.grafana_mimir_processor import GrafanaMimirApiProcessor
 
 class DataFactory:
 
@@ -29,8 +30,8 @@ class DataFactory:
         return GrafanaLokiApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
     
     @staticmethod
-    def get_grafana_mimir_client():
-        return None
+    def get_grafana_mimir_client(host: str,port: int,protocol: str, x_scope_org_id='anonymous', ssl_verify='true'):
+        return GrafanaMimirApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
     
     @staticmethod
     def get_grafana_promql_client(host: str, port: int, protocol: str, api_key: str, ssl_verify: bool=True):
