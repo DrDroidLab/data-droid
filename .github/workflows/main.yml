@@ -1,14 +1,19 @@
 name: PR Integration to Main
 
+permissions:
+  contents: read
+  pull-requests: write
+
 on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize]
+    types: [opened, reopened, synchronize]
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'integration'
 
     steps:
       - name: Checkout code
@@ -40,6 +45,7 @@ jobs:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('output.log', 'utf8');
+            const truncatedOutput = output.length > 60536 ? '... [truncated]\n' + output.slice(-60536) : output;
             github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,

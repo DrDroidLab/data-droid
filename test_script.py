@@ -4,12 +4,15 @@
 from pydatadroid import DataFactory
 
 import yaml
+import json
 
 def load_config(file_path):
     with open(file_path, 'r') as file:
         return yaml.safe_load(file)
 
 
+def trunc_dict(dictionary_output,limit: int=100):
+    return json.dumps(dictionary_output)[0:min(len(json.dumps(dictionary_output)),limit)]
 
 if __name__ == '__main__':
     
@@ -32,7 +35,7 @@ if __name__ == '__main__':
                 query_pattern="fields @timestamp, @message | limit 1"
                 log_output = aws_cw_logs_client.logs_filter_events(log_group,query_pattern)
                 if log_output:
-                    print("\n Sample Log output from AWS Cloudwatch Logs:\n", log_output)
+                    print("\n Sample Log output from AWS Cloudwatch Logs:\n", trunc_dict(log_output))
                 else:
                     print("\n No logs found for the given query")
         else:
@@ -57,7 +60,7 @@ if __name__ == '__main__':
                 metric = "CPUUtilization"
                 dimensions = {"EngineName": "postgres"}
                 metric_output = aws_cw_client.cloudwatch_get_metric_statistics(namespace, metric,dimensions)
-                print("\n Sample Metric output from AWS Cloudwatch Metrics:\n", metric_output)
+                print("\n Sample Metric output from AWS Cloudwatch Metrics:\n", trunc_dict(metric_output))
         else:
             print("\n aws_metrics credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
@@ -76,7 +79,7 @@ if __name__ == '__main__':
             else:
                 print("\n Credentials successfully tested. Now running a sample query")
                 kubectl_output = kubectl_client.execute_command("kubectl get pods -A")
-                print("\n Sample output from Kubectl command:\n", kubectl_output)
+                print("\n Sample output from Kubectl command:\n", trunc_dict(kubectl_output))
         else:
             print("\n kubectl_connector credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
@@ -93,7 +96,7 @@ if __name__ == '__main__':
             else:
                 print("\n Credentials successfully tested. Now running a sample command")
                 bash_output = bash_client.execute_commands(["sudo docker ps"])
-                print("\n Sample output from Bash Command:\n", bash_output)
+                print("\n Sample output from Bash Command:\n", trunc_dict(bash_output))
         else:
             print("\n bash_command_server credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
@@ -115,7 +118,7 @@ if __name__ == '__main__':
                 print("\n Credentials successfully tested. Now running a sample query")
                 query = "SELECT * FROM pg_stat_activity"
                 postgres_output = postgres_client.get_query_result(query)
-                print("\n Sample output from Postgres DB:\n", postgres_output)
+                print("\n Sample output from Postgres DB:\n", trunc_dict(postgres_output))
         else:
             print("\n postgres_db credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
@@ -136,8 +139,52 @@ if __name__ == '__main__':
                 print("\n Credentials successfully tested. Now running a sample query")
                 query = '{job="python-logger"}'
                 loki_output = loki_client.query(query)
-                print("\n Sample output from Grafana Loki:\n", loki_output)
+                print("\n Sample output from Grafana Loki:\n", trunc_dict(loki_output))
         else:
             print("\n grafana_loki credentials not found in the credentials.yaml file. Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_loki: ", e)
+
+    try:
+        if 'grafana_promql' in config:
+            print("\n Testing Grafana promql Connector")
+            host = config.get('grafana_promql',{}).get('host')
+            port = config.get('grafana_promql',{}).get('port')
+            protocol = config.get('grafana_promql',{}).get('protocol')
+            api_key = config.get('grafana_promql',{}).get('api_key')
+            ssl_verify = config.get('grafana_promql',{}).get('ssl_verify',True)
+            promql_client = DataFactory.get_grafana_promql_client(host, port, protocol, api_key, ssl_verify)
+            if not promql_client.test_connection():
+                raise Exception("Connection to Grafana promql failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                datasource_uid = "dbfa7a5f-f8bd-49f2-8ea3-8e16832d572a"
+                query = 'sum(rate(status_counter[1m]))'
+                promql_output = promql_client.query(datasource_uid, query)
+                print("\n Sample output from grafana_promql:\n", trunc_dict(promql_output))
+        else:
+            print("\n grafana_promql credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in grafana_promql: ", e)
+    
+    try:
+        if 'grafana_mimir' in config:
+            print("\n Testing Grafana Mimir Connector")
+            host = config.get('grafana_mimir',{}).get('host')
+            port = config.get('grafana_mimir',{}).get('port')
+            protocol = config.get('grafana_mimir',{}).get('protocol')
+            x_scope_org_id = config.get('grafana_mimir',{}).get('x_scope_org_id')
+            ssl_verify = config.get('grafana_mimir',{}).get('ssl_verify',True)
+            mimir_client = DataFactory.get_grafana_mimir_client(host, port, protocol, x_scope_org_id, ssl_verify)
+            if not mimir_client.test_connection():
+                raise Exception("Connection to Grafana Mimir failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                query = 'histogram_quantile(0.99, sum by (le) (cluster_job_route:cortex_request_duration_seconds_bucket:sum_rate{cluster=~"demo", job=~"(demo)/((distributor.|cortex|mimir|mimir-write.))", route=~"/distributor.Distributor/Push|/httpgrpc.*|api_(v1|prom)_push|otlp_v1_metrics"})) * 1e3'
+                mimir_output = mimir_client.query(query)
+                print("\n Sample output from Grafana Mimir:\n", trunc_dict(mimir_output))
+        else:
+            print("\n grafana_mimir credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in grafana_mimir: ", e)
+    
