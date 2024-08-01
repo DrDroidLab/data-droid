@@ -55,7 +55,6 @@ class GrafanaPromqlProcessor(Processor):
 
             url = '{}/api/datasources/proxy/uid/{}/api/v1/query_range?query={}&start={}&end={}&step={}'.format(
                 f"{self.__protocol}://{self.__host}:{self.__port}", promql_datasource_uid, query, start_time_epoch, end_time_epoch, step)
-            print(url)
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if not response:
                 raise Exception("No data returned from Grafana PromQL")

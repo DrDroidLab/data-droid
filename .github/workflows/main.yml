@@ -45,6 +45,7 @@ jobs:
           script: |
             const fs = require('fs');
             const output = fs.readFileSync('output.log', 'utf8');
+            const truncatedOutput = output.length > 60536 ? '... [truncated]\n' + output.slice(-60536) : output;
             github.rest.issues.createComment({
               issue_number: context.payload.pull_request.number,
               owner: context.repo.owner,
