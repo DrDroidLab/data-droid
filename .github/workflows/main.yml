@@ -1,0 +1,47 @@
+name: PR Integration to Main
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+jobs:
+  run-tests:
+    if: github.base_ref == 'integration'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Create credentials.yaml from secret
+        run: |
+          echo "${{ secrets.CREDENTIALS_YAML }}" > test_credentials/credentials.yaml
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests and capture output
+        id: run-tests
+        run: |
+          python test_script.py > output.log
+          cat output.log
+
+      - name: Post test results as a comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('output.log', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Test Script Output\n\`\`\`\n${output}\n\`\`\``
+            });
