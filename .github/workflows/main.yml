@@ -8,7 +8,7 @@ on:
 
 jobs:
   run-tests:
-    if: github.base_ref == 'integration'
+    if: github.head_ref == 'integration'
     runs-on: ubuntu-latest
 
     steps:
