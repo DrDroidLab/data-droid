@@ -4,11 +4,12 @@ on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize]
+    types: [opened, reopened, synchronize]
 
 jobs:
   run-tests:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.base.ref == 'main' && github.event.pull_request.head.ref == 'integration'
 
     steps:
       - name: Checkout code
