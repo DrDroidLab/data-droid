@@ -46,6 +46,7 @@ pyproject_hooks==1.1.0
 pytest==8.3.1
 python-dateutil==2.9.0.post0
 pytz==2024.1
+PyYAML==6.0.1
 rapidfuzz==3.9.4
 requests==2.32.3
 requests-toolbelt==1.0.0
@@ -61,4 +62,3 @@ urllib3==1.26.19
 virtualenv==20.26.3
 xattr==1.1.0
 zipp==3.19.2
-pyyaml==6.0.1
