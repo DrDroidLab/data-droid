@@ -24,5 +24,5 @@ class DataFactory:
         return PostgresDBProcessor(host, user, password, database, port, connect_timeout)
 
     @staticmethod
-    def get_grafana_loki_client(host: str, port: int, protocol: str, x_scope_org_id: str='anonymous', ssl_verify: str='true'):
+    def get_grafana_loki_client(host: str, port: int, protocol: str, x_scope_org_id: str='anonymous', ssl_verify: bool=True):
         return GrafanaLokiApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)

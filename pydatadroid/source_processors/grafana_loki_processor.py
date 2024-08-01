@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 class GrafanaLokiApiProcessor(Processor):
     client = None
 
-    def __init__(self, host, port, protocol, x_scope_org_id='anonymous', ssl_verify='true'):
+    def __init__(self, host, port, protocol, x_scope_org_id='anonymous', ssl_verify=True):
         self.__protocol = protocol
         self.__host = host
         self.__port = port
-        self.__ssl_verify = False if ssl_verify and ssl_verify.lower() == 'false' else True
+        self.__ssl_verify = ssl_verify
         self.__headers = {'X-Scope-OrgID': x_scope_org_id}
 
     def test_connection(self):
