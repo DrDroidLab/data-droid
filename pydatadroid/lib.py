@@ -2,6 +2,7 @@ from pydatadroid.source_processors.aws_cloudwatch_processor import AWSCloudwatch
 from pydatadroid.source_processors.azure_processor import AzureProcessor
 from pydatadroid.source_processors.bash_processor import BashProcessor
 from pydatadroid.source_processors.clickhouse_db_processor import ClickhouseDBProcessor
+from pydatadroid.source_processors.datadog_processor import DatadogProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
 from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiProcessor
@@ -48,3 +49,7 @@ class DataFactory:
     @staticmethod
     def get_clickhouse_db_client(interface: str, host: str, port: str, user: str, password: str, database: str):
         return ClickhouseDBProcessor(interface, host, port, user, password, database)
+
+    @staticmethod
+    def get_datadog_client(dd_app_key: str, dd_api_key: str, dd_api_domain: str = 'datadoghq.com'):
+        return DatadogProcessor(dd_app_key, dd_api_key, dd_api_domain)
