@@ -11,7 +11,7 @@ from pydatadroid.utils.time_utils import current_epoch
 logger = logging.getLogger(__name__)
 
 
-class GrafanaMimirApiProcessor(Processor):
+class GrafanaMimirProcessor(Processor):
     client = None
 
     def __init__(self, mimir_host, mimir_port, mimir_protocol, x_scope_org_id='anonymous', ssl_verify=True):

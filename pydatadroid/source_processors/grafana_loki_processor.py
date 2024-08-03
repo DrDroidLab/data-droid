@@ -11,7 +11,7 @@ from pydatadroid.utils.proto_utils import proto_to_dict
 logger = logging.getLogger(__name__)
 
 
-class GrafanaLokiApiProcessor(Processor):
+class GrafanaLokiProcessor(Processor):
     client = None
 
     def __init__(self, host, port, protocol, x_scope_org_id='anonymous', ssl_verify=True):

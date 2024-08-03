@@ -1,11 +1,12 @@
 from pydatadroid.source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
 from pydatadroid.source_processors.azure_processor import AzureProcessor
 from pydatadroid.source_processors.bash_processor import BashProcessor
+from pydatadroid.source_processors.clickhouse_db_processor import ClickhouseDBProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
-from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiApiProcessor
+from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiProcessor
 from pydatadroid.source_processors.grafana_promql_processor import GrafanaPromqlProcessor
-from pydatadroid.source_processors.grafana_mimir_processor import GrafanaMimirApiProcessor
+from pydatadroid.source_processors.grafana_mimir_processor import GrafanaMimirProcessor
 
 
 class DataFactory:
@@ -30,11 +31,11 @@ class DataFactory:
     @staticmethod
     def get_grafana_loki_client(host: str, port: int, protocol: str, x_scope_org_id: str = 'anonymous',
                                 ssl_verify: bool = True):
-        return GrafanaLokiApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
+        return GrafanaLokiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
 
     @staticmethod
     def get_grafana_mimir_client(host: str, port: int, protocol: str, x_scope_org_id='anonymous', ssl_verify='true'):
-        return GrafanaMimirApiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
+        return GrafanaMimirProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
 
     @staticmethod
     def get_grafana_promql_client(host: str, port: int, protocol: str, api_key: str, ssl_verify: bool = True):
@@ -43,3 +44,7 @@ class DataFactory:
     @staticmethod
     def get_azure_client(subscription_id: str, tenant_id: str, client_id: str, client_secret: str):
         return AzureProcessor(subscription_id, tenant_id, client_id, client_secret)
+
+    @staticmethod
+    def get_clickhouse_db_client(interface: str, host: str, port: str, user: str, password: str, database: str):
+        return ClickhouseDBProcessor(interface, host, port, user, password, database)
