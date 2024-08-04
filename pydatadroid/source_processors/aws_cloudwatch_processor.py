@@ -57,9 +57,9 @@ class AWSCloudwatchProcessor(Processor, ABC):
             logger.error(f"Exception occurred while testing cloudwatch connection with error: {e}")
             raise e
 
-    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, end_time_epoch: int = None,
-                                         start_time_epoch: int = None, dimensions: Dict = None, period: int = 300,
-                                         statistic: str = 'Average'):
+    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, dimensions: Dict = None, period: int = 300,
+                                         statistic: str = 'Average', end_time_epoch: int = None,
+                                         start_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:

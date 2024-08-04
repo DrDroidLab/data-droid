@@ -43,7 +43,7 @@ class GrafanaMimirProcessor(Processor):
             logger.error(f"Exception occurred while querying mimir config with error: {e}")
             raise e
 
-    def query(self, query, start_time_epoch: int=None, end_time_epoch: int=None, step: int=300):
+    def query(self, query, step: int = 300, start_time_epoch: int = None, end_time_epoch: int = None):
         try:
             if not end_time_epoch:
                 end_time_epoch = current_epoch()
@@ -54,7 +54,7 @@ class GrafanaMimirProcessor(Processor):
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if not response:
                 raise Exception("No data returned from Grafana PromQL")
-            if response.status_code!=200:
+            if response.status_code != 200:
                 raise Exception(f"Failed to fetch data from Grafana PromQL with error message: {response.text}")
             result = response.json()
             if 'data' in result and 'result' in result['data']:
