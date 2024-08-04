@@ -83,7 +83,6 @@ python-dateutil==2.9.0.post0
 pytz==2024.1
 PyYAML==6.0.1
 rapidfuzz==3.9.4
-readme_renderer==44.0
 requests==2.32.3
 requests-oauthlib==2.0.0
 requests-toolbelt==1.0.0
