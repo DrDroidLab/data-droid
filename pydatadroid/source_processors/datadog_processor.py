@@ -74,17 +74,25 @@ class DatadogProcessor(Processor, ABC):
             logger.error("Exception when calling AuthenticationApi->validate: %s\n" % e)
             raise e
 
-    def fetch_metric_timeseries(self, metric_queries: [str], formulas: [str], interval: int = 300000,
+    def fetch_metric_timeseries(self, queries: [str], formulas: [str], interval: int = 300000,
                                 start_time_epoch: int = None, end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:
             start_time_epoch = end_time_epoch - 3600
+        if not queries:
+            raise Exception("No metric queries provided to fetch timeseries data from datadog")
         try:
+            queries_list = [
+                {
+                    "query": query,
+                    "name": "a" if i == 0 else "b"
+                } for i, query in enumerate(queries)
+            ]
+
             from_tr = start_time_epoch * 1000
             to_tr = end_time_epoch * 1000
-            if not metric_queries:
-                raise Exception("No metric queries provided to fetch timeseries data")
+
             query_formulas: [QueryFormula] = []
             if formulas:
                 for f in formulas:
@@ -92,7 +100,7 @@ class DatadogProcessor(Processor, ABC):
                         QueryFormula(formula=f['formula'], limit=FormulaLimit(count=10, order=QuerySortOrder.DESC)))
 
             timeseries_queries: [MetricsTimeseriesQuery] = []
-            for query in metric_queries:
+            for query in queries_list:
                 timeseries_queries.append(MetricsTimeseriesQuery(
                     data_source=MetricsDataSource.METRICS,
                     name=query['name'],
@@ -149,7 +157,7 @@ class DatadogProcessor(Processor, ABC):
                     TimeseriesResult.LabeledMetricTimeseries(metric_label_values=metric_labels,
                                                              unit=StringValue(value=unit), datapoints=datapoints))
 
-            metric = ' '.join(metric_queries)
+            metric = ' '.join(queries)
             timeseries_result = TimeseriesResult(metric_expression=StringValue(value=metric),
                                                  metric_name=StringValue(value='Datadog Metric Timeseries Data'),
                                                  labeled_metric_timeseries=labeled_metric_timeseries)

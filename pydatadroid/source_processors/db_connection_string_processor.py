@@ -2,8 +2,8 @@ import logging
 import threading
 from abc import ABC
 
-import clickhouse_connect
 from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
+from sqlalchemy import create_engine, text
 
 from pydatadroid.exceptions.execption import TimeoutException
 from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType
@@ -12,52 +12,41 @@ from pydatadroid.source_processors.processor import Processor
 logger = logging.getLogger(__name__)
 
 
-class ClickhouseDBProcessor(Processor, ABC):
-    def __init__(self, protocol: str, host: str, port: str, user: str, password: str, database: str):
-        self.config = {
-            'interface': protocol,
-            'host': host,
-            'port': port,
-            'user': user,
-            'password': password,
-            'database': database
-        }
+class DBConnectionStringProcessor(Processor, ABC):
+    def __init__(self, connection_string: str):
+        self.connection_string = connection_string
 
     def get_connection(self):
         try:
-            client = clickhouse_connect.get_client(**self.config)
-            return client
+            engine = create_engine(self.connection_string)
+            connection = engine.connect()
+            return connection
         except Exception as e:
-            logger.error(f"Exception occurred while creating clickhouse connection with error: {e}")
+            logger.error(f"Exception occurred while creating db connection with error: {e}")
             raise e
 
     def test_connection(self):
         try:
-            client = self.get_connection()
-            query = 'SELECT 1'
-            result = client.query(query)
-            client.close()
-            if result:
-                return True
-            else:
-                raise Exception("Clickhouse Connection Error:: Failed to fetch result from clickhouse")
+            connection = self.get_connection()
+            result = connection.execute(text("SELECT 1"))
+            connection.close()
+            return True
         except Exception as e:
-            logger.error(f"Exception occurred while testing clickhouse connection with error: {e}")
+            logger.error(f"Exception occurred while testing db connection connection with error: {e}")
             raise e
 
     def get_query_result(self, query, timeout=120):
         try:
-            if not self.config.get('database'):
-                raise Exception("Database is required to fetch clickhouse query result")
             count_query = f"SELECT COUNT(*) FROM ({query}) AS subquery"
 
             def query_db():
                 nonlocal count_result, result, exception
                 try:
-                    client = self.get_connection()
-                    count_result = client.query(count_query, settings={'session_timeout': timeout})
-                    result = client.query(query, settings={'session_timeout': timeout})
-                    client.close()
+                    connection = self.get_connection()
+                    count_result = connection.execution_options(timeout=timeout).execute(text(count_query))
+                    result = connection.execution_options(timeout=timeout).execute(text(query))
+                    connection.close()
+                    return result
                 except Exception as e:
                     exception = e
 
@@ -75,15 +64,17 @@ class ClickhouseDBProcessor(Processor, ABC):
                 raise exception
 
             table_rows: [TableResult.TableRow] = []
-            for row in result.result_set:
+            col_names = list(result.keys())
+            query_result = result.fetchall()
+            for row in query_result:
                 table_columns = []
-                for i, column in enumerate(result.column_names):
-                    table_column = TableResult.TableColumn(name=StringValue(value=column),
-                                                           value=StringValue(value=str(row[i])))
+                for i, value in enumerate(row):
+                    table_column = TableResult.TableColumn(name=StringValue(value=col_names[i]),
+                                                           value=StringValue(value=str(value)))
                     table_columns.append(table_column)
                 table_rows.append(TableResult.TableRow(columns=table_columns))
             table = TableResult(raw_query=StringValue(value=query),
-                                total_count=UInt64Value(value=int(count_result.result_set[0][0])),
+                                total_count=UInt64Value(value=int(count_result)),
                                 rows=table_rows)
             return Result(type=ResultType.TABLE, table=table)
         except Exception as e:

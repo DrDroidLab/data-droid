@@ -3,6 +3,9 @@ from pydatadroid.source_processors.azure_processor import AzureProcessor
 from pydatadroid.source_processors.bash_processor import BashProcessor
 from pydatadroid.source_processors.clickhouse_db_processor import ClickhouseDBProcessor
 from pydatadroid.source_processors.datadog_processor import DatadogProcessor
+from pydatadroid.source_processors.db_connection_string_processor import DBConnectionStringProcessor
+from pydatadroid.source_processors.eks_processor import EksProcessor
+from pydatadroid.source_processors.elastic_search_provcessor import ElasticSearchProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
 from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiProcessor
@@ -47,9 +50,23 @@ class DataFactory:
         return AzureProcessor(subscription_id, tenant_id, client_id, client_secret)
 
     @staticmethod
-    def get_clickhouse_db_client(interface: str, host: str, port: str, user: str, password: str, database: str):
-        return ClickhouseDBProcessor(interface, host, port, user, password, database)
+    def get_clickhouse_db_client(protocol: str, host: str, port: str, user: str, password: str, database: str):
+        return ClickhouseDBProcessor(protocol, host, port, user, password, database)
 
     @staticmethod
     def get_datadog_client(dd_app_key: str, dd_api_key: str, dd_api_domain: str = 'datadoghq.com'):
         return DatadogProcessor(dd_app_key, dd_api_key, dd_api_domain)
+
+    @staticmethod
+    def get_db_connection_string_client(connection_string: str):
+        return DBConnectionStringProcessor(connection_string)
+
+    @staticmethod
+    def get_eks_client(region: str, aws_access_key: str, aws_secret_key: str, k8_role_arn: str,
+                       aws_session_token: str = None):
+        return EksProcessor(region, aws_access_key, aws_secret_key, k8_role_arn, aws_session_token)
+
+    @staticmethod
+    def get_elastic_search_client(protocol: str, host: str, port: str, api_key_id: str, api_key: str,
+                                  verify_certs: bool = False):
+        return ElasticSearchProcessor(protocol, host, port, api_key_id, api_key, verify_certs)
