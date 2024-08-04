@@ -7,6 +7,7 @@ from pydatadroid.source_processors.db_connection_string_processor import DBConne
 from pydatadroid.source_processors.eks_processor import EksProcessor
 from pydatadroid.source_processors.elastic_search_provcessor import ElasticSearchProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
+from pydatadroid.source_processors.new_relic_processor import NewRelicProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
 from pydatadroid.source_processors.grafana_loki_processor import GrafanaLokiProcessor
 from pydatadroid.source_processors.grafana_promql_processor import GrafanaPromqlProcessor
@@ -70,3 +71,7 @@ class DataFactory:
     def get_elastic_search_client(protocol: str, host: str, port: str, api_key_id: str, api_key: str,
                                   verify_certs: bool = False):
         return ElasticSearchProcessor(protocol, host, port, api_key_id, api_key, verify_certs)
+
+    @staticmethod
+    def get_new_relic_client(nr_api_key: str, nr_app_id: str, nr_api_domain: str = 'api.newrelic.com'):
+        return NewRelicProcessor(nr_api_key, nr_app_id, nr_api_domain)

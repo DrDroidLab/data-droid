@@ -45,6 +45,7 @@ class GrafanaMimirProcessor(Processor):
 
     def query(self, query, step: int = 300, start_time_epoch: int = None, end_time_epoch: int = None):
         try:
+            task_result = Result()
             if not end_time_epoch:
                 end_time_epoch = current_epoch()
             if not start_time_epoch:
@@ -82,11 +83,8 @@ class GrafanaMimirProcessor(Processor):
                     metric_expression=StringValue(value=query),
                     labeled_metric_timeseries=labeled_metric_timeseries_list
                 )
-                mimir_request = Result(
-                    type=ResultType.TIMESERIES,
-                    timeseries=timeseries_result)
-            return proto_to_dict(mimir_request)
-
+                task_result = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while getting mimir metric timeseries with error: {e}")
             raise e

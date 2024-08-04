@@ -6,6 +6,7 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 
 from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType
 from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
 from pydatadroid.utils.time_utils import current_epoch
 
 logger = logging.getLogger(__name__)
@@ -130,7 +131,8 @@ class ElasticSearchProcessor(Processor, ABC):
             table = TableResult(raw_query=StringValue(value=lucene_query),
                                 total_count=UInt64Value(value=count_result),
                                 rows=table_rows)
-            return Result(type=ResultType.LOGS, logs=table)
+            task_result = Result(type=ResultType.LOGS, logs=table)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while fetching clickhouse query result with error: {e}")
             raise e

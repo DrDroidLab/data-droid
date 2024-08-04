@@ -175,8 +175,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
                     logger.info("Query took too long to complete. Aborting...")
                     stop_query_response = client.stop_query(queryId=query_id)
                     logger.info(f"Query stopped with response: {stop_query_response}")
-                    return None
-            return None
+                    raise Exception("Query took too long to complete. Aborting...")
+            raise Exception(f"Query failed with status: {status}")
         except Exception as e:
             logger.error(f"Exception occurred while fetching logs for log_group: {log_group} with error: {e}")
             raise e

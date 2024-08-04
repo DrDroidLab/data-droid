@@ -12,6 +12,7 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType, BashCommandOutputResult
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
 
@@ -112,29 +113,26 @@ class EksProcessor(Processor, ABC):
 
     def execute_kubectl_command(self, command, cluster):
         try:
-
             commands = command.split('\n')
-            try:
-                outputs = {}
-                kubectl_client = self._get_kubectl_processor(cluster, 'api')
-                for command in commands:
-                    command_to_execute = command
-                    output = kubectl_client.execute_command(command_to_execute)
-                    outputs[command] = output
+            outputs = {}
+            kubectl_client = self._get_kubectl_processor(cluster, 'api')
+            for command in commands:
+                command_to_execute = command
+                output = kubectl_client.execute_command(command_to_execute)
+                outputs[command] = output
 
-                command_output_protos = []
-                for command, output in outputs.items():
-                    bash_command_result = BashCommandOutputResult.CommandOutput(
-                        command=StringValue(value=command),
-                        output=StringValue(value=output)
-                    )
-                    command_output_protos.append(bash_command_result)
-
-                return Result(
-                    type=ResultType.BASH_COMMAND_OUTPUT,
-                    bash_command_output=BashCommandOutputResult(command_outputs=command_output_protos)
+            command_output_protos = []
+            for command, output in outputs.items():
+                bash_command_result = BashCommandOutputResult.CommandOutput(
+                    command=StringValue(value=command),
+                    output=StringValue(value=output)
                 )
-            except Exception as e:
-                raise Exception(f"Error while executing EKS kubectl task: {e}")
+                command_output_protos.append(bash_command_result)
+
+            task_result = Result(
+                type=ResultType.BASH_COMMAND_OUTPUT,
+                bash_command_output=BashCommandOutputResult(command_outputs=command_output_protos)
+            )
+            return proto_to_dict(task_result)
         except Exception as e:
             raise Exception(f"Error while executing EKS kubectl task: {e}")

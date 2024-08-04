@@ -8,6 +8,7 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 from pydatadroid.exceptions.execption import TimeoutException
 from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType
 from pydatadroid.source_processors.processor import Processor
+from pydatadroid.utils.proto_utils import proto_to_dict
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +86,8 @@ class ClickhouseDBProcessor(Processor, ABC):
             table = TableResult(raw_query=StringValue(value=query),
                                 total_count=UInt64Value(value=int(count_result.result_set[0][0])),
                                 rows=table_rows)
-            return Result(type=ResultType.TABLE, table=table)
+            task_result = Result(type=ResultType.TABLE, table=table)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while fetching clickhouse query result with error: {e}")
             raise e

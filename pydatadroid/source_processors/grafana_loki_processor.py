@@ -85,11 +85,11 @@ class GrafanaLokiProcessor(Processor):
             table = TableResult(raw_query=StringValue(value=f"Execute ```{query}```"),
                                 total_count=UInt64Value(value=len(result)),
                                 rows=table_rows)
-            result_proto = Result(
+            task_result = Result(
                 type=ResultType.LOGS,
                 logs=table
             )
-            return proto_to_dict(result_proto)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e
