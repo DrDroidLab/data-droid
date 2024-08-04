@@ -58,8 +58,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
             raise e
 
     def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, dimensions: Dict = None, period: int = 300,
-                                         statistic: str = 'Average', end_time_epoch: int = None,
-                                         start_time_epoch: int = None):
+                                         statistic: str = 'Average', start_time_epoch: int = None,
+                                         end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:
@@ -124,8 +124,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 f"Exception occurred while fetching cloudwatch metric statistics for metric: {metric} with error: {e}")
             raise e
 
-    def logs_filter_events(self, log_group: str, query_pattern: str, end_time_epoch: int = None,
-                           start_time_epoch: int = None):
+    def logs_filter_events(self, log_group: str, query_pattern: str, start_time_epoch: int = None,
+                           end_time_epoch: int = None, ):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:

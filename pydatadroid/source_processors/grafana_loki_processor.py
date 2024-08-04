@@ -43,7 +43,7 @@ class GrafanaLokiProcessor(Processor):
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e
 
-    def query(self, query, limit=1000, end_time_epoch: int = None, start_time_epoch: int = None):
+    def query(self, query, limit=1000, start_time_epoch: int = None, end_time_epoch: int = None):
         try:
             url = '{}/loki/api/v1/query_range'.format(f"{self.__protocol}://{self.__host}:{self.__port}")
             params = {
