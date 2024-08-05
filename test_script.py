@@ -197,3 +197,26 @@ if __name__ == '__main__':
                   "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_mimir: ", e)
+
+    try:
+        if 'clickhouse' in config:
+            print("\n Testing Clickhouse Connector")
+            protocol = config.get('clickhouse', {}).get('protocol')
+            host = config.get('clickhouse', {}).get('host')
+            port = config.get('clickhouse', {}).get('port')
+            user = config.get('clickhouse', {}).get('user')
+            password = config.get('clickhouse', {}).get('password')
+            database = config.get('clickhouse', {}).get('database')
+            clickhouse_client = DataFactory.get_clickhouse_db_client(protocol, host, port, user, password, database)
+            if not clickhouse_client.test_connection():
+                raise Exception("Connection to Clickhouse failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                query = 'select * from ontime limit 1'
+                clickhouse_output = clickhouse_client.get_query_result(query)
+                print("\n Sample output from Clickhouse DB:\n", trunc_dict(clickhouse_output))
+        else:
+            print("\n clickhouse credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in clickhouse: ", e)
