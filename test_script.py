@@ -264,3 +264,27 @@ if __name__ == '__main__':
                   "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in db_connection_string: ", e)
+
+    try:
+        if 'eks' in config:
+            print("\n Testing EKS Connector")
+            region = config.get('eks', {}).get('region')
+            aws_access_key = config.get('eks', {}).get('aws_access_key')
+            aws_secret_key = config.get('eks', {}).get('aws_secret_key')
+            k8_role_arn = config.get('eks', {}).get('k8_role_arn')
+
+            eks_client = DataFactory.get_eks_client(region, aws_access_key, aws_secret_key, k8_role_arn)
+            if not eks_client.test_connection():
+                raise Exception("Connection to EKS failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                # Add your query here
+                kubectl_command = 'kubectl get pods -A'
+
+                eks_output = eks_client.execute_kubectl_command(cluster='prod', command=kubectl_command)
+                print("\n Sample output from EKS:\n", trunc_dict(eks_output))
+        else:
+            print("\n eks credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in eks: ", e)

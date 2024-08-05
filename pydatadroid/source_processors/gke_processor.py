@@ -14,7 +14,7 @@ from google.protobuf.wrappers_pb2 import StringValue
 from pydatadroid.protos.result_pb2 import Result, ResultType, BashCommandOutputResult
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.processor import Processor
-from pydatadroid.utils.proto_utils import proto_to_dict
+from pydatadroid.utils.proto_utils import proto_to_dict, dict_to_proto
 
 logger = logging.getLogger(__name__)
 
@@ -110,18 +110,12 @@ class GkeProcessor(Processor, ABC):
             commands = command.split('\n')
             outputs = {}
             kubectl_client = self._get_kubectl_processor(zone, cluster, 'api')
+            command_output_protos = []
             for command in commands:
                 command_to_execute = command
                 output = kubectl_client.execute_command(command_to_execute)
-                outputs[command] = output
-
-            command_output_protos = []
-            for command, output in outputs.items():
-                bash_command_result = BashCommandOutputResult.CommandOutput(
-                    command=StringValue(value=command),
-                    output=StringValue(value=output)
-                )
-                command_output_protos.append(bash_command_result)
+                bash_output_proto = dict_to_proto(output, Result)
+                command_output_protos.extend(bash_output_proto.bash_command_output.command_outputs)
 
             task_result = Result(
                 type=ResultType.BASH_COMMAND_OUTPUT,
