@@ -7,9 +7,9 @@ from datetime import datetime, timedelta
 import boto3
 import kubernetes as kubernetes
 from awscli.customizations.eks.get_token import TOKEN_EXPIRATION_MINS, STSClientFactory, TokenGenerator
-from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
+from google.protobuf.wrappers_pb2 import StringValue
 
-from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType, BashCommandOutputResult
+from pydatadroid.protos.result_pb2 import Result, ResultType, BashCommandOutputResult
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.processor import Processor
 from pydatadroid.utils.proto_utils import proto_to_dict
@@ -111,7 +111,7 @@ class EksProcessor(Processor, ABC):
         ssl_ca_cert_path = api_instance.api_client.configuration.ssl_ca_cert
         return KubectlProcessor(api_server=eks_host, token=token, ssl_ca_cert_path=ssl_ca_cert_path)
 
-    def execute_kubectl_command(self, command, cluster):
+    def execute_kubectl_command(self, cluster, command):
         try:
             commands = command.split('\n')
             outputs = {}

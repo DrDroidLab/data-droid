@@ -1,3 +1,5 @@
+from typing import Dict
+
 from pydatadroid.source_processors.aws_cloudwatch_processor import AWSCloudwatchProcessor
 from pydatadroid.source_processors.azure_processor import AzureProcessor
 from pydatadroid.source_processors.bash_processor import BashProcessor
@@ -6,6 +8,7 @@ from pydatadroid.source_processors.datadog_processor import DatadogProcessor
 from pydatadroid.source_processors.db_connection_string_processor import DBConnectionStringProcessor
 from pydatadroid.source_processors.eks_processor import EksProcessor
 from pydatadroid.source_processors.elastic_search_provcessor import ElasticSearchProcessor
+from pydatadroid.source_processors.gke_processor import GkeProcessor
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
 from pydatadroid.source_processors.new_relic_processor import NewRelicProcessor
 from pydatadroid.source_processors.postgres_db_processor import PostgresDBProcessor
@@ -75,3 +78,7 @@ class DataFactory:
     @staticmethod
     def get_new_relic_client(nr_api_key: str, nr_app_id: str, nr_api_domain: str = 'api.newrelic.com'):
         return NewRelicProcessor(nr_api_key, nr_app_id, nr_api_domain)
+
+    @staticmethod
+    def get_gke_client(project_id: str, service_account_json: Dict):
+        return GkeProcessor(project_id, service_account_json)

@@ -125,7 +125,7 @@ class AWSCloudwatchProcessor(Processor, ABC):
             raise e
 
     def logs_filter_events(self, log_group: str, query_pattern: str, start_time_epoch: int = None,
-                           end_time_epoch: int = None, ):
+                           end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:

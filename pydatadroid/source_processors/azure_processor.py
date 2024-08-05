@@ -11,6 +11,7 @@ from google.protobuf.wrappers_pb2 import StringValue, UInt64Value
 from pydatadroid.protos.result_pb2 import TableResult, Result, ResultType
 from pydatadroid.source_processors.processor import Processor
 from pydatadroid.utils.proto_utils import proto_to_dict
+from pydatadroid.utils.time_utils import current_epoch
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +78,13 @@ class AzureProcessor(Processor, ABC):
         except Exception as e:
             raise e
 
-    def query_log_analytics(self, workspace_id: str, query: str, timespan=timedelta(hours=4)):
+    def query_log_analytics(self, workspace_id: str, query: str, start_time_epoch: int = None,
+                            end_time_epoch: int = None):
+        if not end_time_epoch:
+            end_time_epoch = current_epoch()
+        if not start_time_epoch:
+            start_time_epoch = end_time_epoch - 3600
+        timespan = timedelta(seconds=int(end_time_epoch - start_time_epoch))
         try:
             logger.info(f"Querying Azure Log Analytics workspace: {workspace_id} with query: {query}")
             credentials = self.get_credentials()

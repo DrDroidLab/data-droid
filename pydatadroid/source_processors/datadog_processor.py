@@ -159,7 +159,6 @@ class DatadogProcessor(Processor, ABC):
 
             metric = ' '.join(queries)
             timeseries_result = TimeseriesResult(metric_expression=StringValue(value=metric),
-                                                 metric_name=StringValue(value='Datadog Metric Timeseries Data'),
                                                  labeled_metric_timeseries=labeled_metric_timeseries)
             task_result = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)
             return proto_to_dict(task_result)

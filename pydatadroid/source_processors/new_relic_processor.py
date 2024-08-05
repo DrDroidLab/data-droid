@@ -97,7 +97,7 @@ class NewRelicProcessor(Processor, ABC):
             query = gql(f"""{{
                                             actor {{
                                                 account(id: {self.nr_account_id}) {{
-                                                    nrql(query: "{query}") {{
+                                                    nrql(query: "{nrql_expression}") {{
                                                         metadata {{
                                                             eventTypes
                                                             facets
