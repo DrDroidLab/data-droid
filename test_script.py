@@ -1,6 +1,4 @@
 # This script is only for dev environment to test the connector that you're adding
-
-
 from pydatadroid import DataFactory
 
 import yaml
@@ -19,7 +17,7 @@ def trunc_dict(dictionary_output, limit: int = 100):
 if __name__ == '__main__':
 
     config = load_config("test_credentials/credentials.yaml")
-    ## if aws-logs is in the credentials.yaml file
+    # if aws-logs is in the credentials.yaml file
     try:
         if 'aws_logs' in config:
             print("\n Testing AWS Logs Connector")
@@ -33,7 +31,7 @@ if __name__ == '__main__':
                 raise Exception("Connection to AWS Cloudwatch failed")
             else:
                 print("\n Credentials successfully tested. Now running a sample query")
-                ## Depending on log groups in your AWS account, you can change the log_group value
+                # Depending on log groups in your AWS account, you can change the log_group value
                 log_group = "/aws/containerinsights/prod/application"
                 query_pattern = "fields @timestamp, @message | limit 1"
                 log_output = aws_cw_logs_client.logs_filter_events(log_group, query_pattern)
@@ -42,8 +40,8 @@ if __name__ == '__main__':
                 else:
                     print("\n No logs found for the given query")
         else:
-            print(
-                "\n aws_logs credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n aws_logs credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in aws_logs connector: ", e)
 
@@ -58,7 +56,8 @@ if __name__ == '__main__':
             if not aws_cw_client.test_connection():
                 raise Exception("Connection to AWS Cloudwatch failed")
             else:
-                print("\n Credentials successfully tested. Now running a sample query")
+                print("\n Credentials successfully tested. "
+                      "Now running a sample query")
                 # Depending on the metric you want to query, you can change the namespace, metric and dimensions values
                 namespace = "AWS/RDS"
                 metric = "CPUUtilization"
@@ -66,8 +65,8 @@ if __name__ == '__main__':
                 metric_output = aws_cw_client.cloudwatch_get_metric_statistics(namespace, metric, dimensions)
                 print("\n Sample Metric output from AWS Cloudwatch Metrics:\n", trunc_dict(metric_output))
         else:
-            print(
-                "\n aws_metrics credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n aws_metrics credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in aws_metrics connector: ", e)
 
@@ -85,8 +84,8 @@ if __name__ == '__main__':
                 kubectl_output = kubectl_client.execute_command("kubectl get pods -A")
                 print("\n Sample output from Kubectl command:\n", trunc_dict(kubectl_output))
         else:
-            print(
-                "\n kubectl_connector credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n kubectl_connector credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in kubectl_connector: ", e)
 
@@ -103,8 +102,8 @@ if __name__ == '__main__':
                 bash_output = bash_client.execute_commands(["sudo docker ps"])
                 print("\n Sample output from Bash Command:\n", trunc_dict(bash_output))
         else:
-            print(
-                "\n bash_command_server credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n bash_command_server credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in bash_command_server: ", e)
 
@@ -126,8 +125,8 @@ if __name__ == '__main__':
                 postgres_output = postgres_client.get_query_result(query)
                 print("\n Sample output from Postgres DB:\n", trunc_dict(postgres_output))
         else:
-            print(
-                "\n postgres_db credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n postgres_db credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in postgres_db: ", e)
 
@@ -149,7 +148,8 @@ if __name__ == '__main__':
                 print("\n Sample output from Grafana Loki:\n", trunc_dict(loki_output))
         else:
             print(
-                "\n grafana_loki credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+                "\n grafana_loki credentials not found in the credentials.yaml file. "
+                "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_loki: ", e)
 
@@ -171,8 +171,8 @@ if __name__ == '__main__':
                 promql_output = promql_client.query(datasource_uid, query)
                 print("\n Sample output from grafana_promql:\n", trunc_dict(promql_output))
         else:
-            print(
-                "\n grafana_promql credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n grafana_promql credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_promql: ", e)
 
@@ -193,7 +193,7 @@ if __name__ == '__main__':
                 mimir_output = mimir_client.query(query)
                 print("\n Sample output from Grafana Mimir:\n", trunc_dict(mimir_output))
         else:
-            print(
-                "\n grafana_mimir credentials not found in the credentials.yaml file. Moving to the next connector testing.")
+            print("\n grafana_mimir credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in grafana_mimir: ", e)
