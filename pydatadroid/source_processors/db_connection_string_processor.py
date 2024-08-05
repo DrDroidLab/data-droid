@@ -38,13 +38,15 @@ class DBConnectionStringProcessor(Processor, ABC):
 
     def get_query_result(self, query, timeout=120):
         try:
-            count_query = f"SELECT COUNT(*) FROM ({query}) AS subquery"
+            if query.endswith(";"):
+                query = query[:-1]
+            c_query = f"SELECT COUNT(*) FROM ({query}) AS subquery"
 
             def query_db():
                 nonlocal count_result, result, exception
                 try:
                     connection = self.get_connection()
-                    count_result = connection.execution_options(timeout=timeout).execute(text(count_query))
+                    count_result = connection.execution_options(timeout=timeout).execute(text(c_query)).fetchone()[0]
                     result = connection.execution_options(timeout=timeout).execute(text(query))
                     connection.close()
                     return result

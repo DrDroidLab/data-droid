@@ -244,3 +244,23 @@ if __name__ == '__main__':
                   "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in datadog: ", e)
+
+    try:
+        if 'db_connection_string' in config:
+            print("\n Testing Database String Connector")
+            connection_string = config.get('db_connection_string', {}).get('connection_string')
+            db_str_client = DataFactory.get_db_connection_string_client(connection_string)
+            if not db_str_client.test_connection():
+                raise Exception("Connection to Database String failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                # Add your query here
+                query = 'select * from management_task limit 1'
+
+                db_str_output = db_str_client.get_query_result(query)
+                print("\n Sample output from Database String:\n", trunc_dict(db_str_output))
+        else:
+            print("\n db_connection_string credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in db_connection_string: ", e)
