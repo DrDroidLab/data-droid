@@ -49,7 +49,7 @@ class DatadogProcessor(Processor, ABC):
         try:
             configuration = Configuration()
             configuration.api_key["apiKeyAuth"] = self.__dd_api_key
-            configuration.access_token = self.__dd_app_key
+            configuration.api_key["appKeyAuth"] = self.__dd_app_key
             if self.dd_api_domain:
                 configuration.server_variables["site"] = self.dd_api_domain
             configuration.unstable_operations["query_timeseries_data"] = True
@@ -74,7 +74,7 @@ class DatadogProcessor(Processor, ABC):
             logger.error("Exception when calling AuthenticationApi->validate: %s\n" % e)
             raise e
 
-    def fetch_metric_timeseries(self, queries: [str], formulas: [str], interval: int = 300000,
+    def fetch_metric_timeseries(self, queries: [str], formulas: [str] = None, interval: int = 300000,
                                 start_time_epoch: int = None, end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
