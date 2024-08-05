@@ -1,5 +1,4 @@
 import base64
-import json
 import logging
 import tempfile
 from abc import ABC
@@ -8,8 +7,6 @@ import kubernetes as kubernetes
 from google.auth.transport.requests import Request, AuthorizedSession
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
-
-from google.protobuf.wrappers_pb2 import StringValue
 
 from pydatadroid.protos.result_pb2 import Result, ResultType, BashCommandOutputResult
 from pydatadroid.source_processors.kubectl_processor import KubectlProcessor
@@ -35,14 +32,19 @@ class GkeProcessor(Processor, ABC):
         self.__service_account_json = service_account_json
         self.__project_id = project_id
 
-    def test_connection(self):
+    def get_connection(self):
         try:
-            # Load service account credentials from JSON file
             credentials = get_gke_credentials(self.__service_account_json)
 
             service = build('container', 'v1', credentials=credentials)
+            return service
+        except Exception as e:
+            logger.error(f"Exception occurred while creating boto3 client with error: {e}")
+            raise e
 
-            # Get the list of all clusters
+    def test_connection(self):
+        try:
+            service = self.get_connection()
             clusters_list = []
             parent = f'projects/{self.__project_id}/locations/-'
             request = service.projects().locations().clusters().list(parent=parent)
@@ -108,7 +110,6 @@ class GkeProcessor(Processor, ABC):
     def execute_kubectl_command(self, zone: str, cluster: str, command: str):
         try:
             commands = command.split('\n')
-            outputs = {}
             kubectl_client = self._get_kubectl_processor(zone, cluster, 'api')
             command_output_protos = []
             for command in commands:

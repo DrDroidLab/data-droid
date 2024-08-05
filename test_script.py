@@ -288,3 +288,25 @@ if __name__ == '__main__':
                   "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in eks: ", e)
+
+    try:
+        if 'gke' in config:
+            print("\n Testing GKE Connector")
+            project_id = config.get('gke', {}).get('project_id')
+            service_account_json = config.get('gke', {}).get('service_account_json')
+            gke_client = DataFactory.get_gke_client(project_id, service_account_json)
+            if not gke_client.test_connection():
+                raise Exception("Connection to GKE failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                # Add your query here
+                kubectl_command = 'kubectl get pods -A'
+
+                gke_output = gke_client.execute_kubectl_command(zone='us-central1', cluster='helm-test',
+                                                                command=kubectl_command)
+                print("\n Sample output from GKE:\n", trunc_dict(gke_output))
+        else:
+            print("\n gke credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in gke: ", e)
