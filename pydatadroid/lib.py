@@ -42,7 +42,8 @@ class DataFactory:
         return GrafanaLokiProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
 
     @staticmethod
-    def get_grafana_mimir_client(host: str, port: int, protocol: str, x_scope_org_id='anonymous', ssl_verify='true'):
+    def get_grafana_mimir_client(host: str, port: int, protocol: str, x_scope_org_id: str = 'anonymous',
+                                 ssl_verify: bool = True):
         return GrafanaMimirProcessor(host, port, protocol, x_scope_org_id, ssl_verify)
 
     @staticmethod
