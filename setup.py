@@ -5,7 +5,7 @@ setup(
     setup_requires=['wheel'],
     packages=find_packages(),
     include_package_data=True,
-    version='0.0.1',
+    version='0.0.2',
     description='Data Factory Library from Doctor Droid to fetch data from various sources',
     author='Mohit Goyal',
     author_email="mohit.goyal@drdroid.io",
