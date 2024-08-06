@@ -57,9 +57,9 @@ class AWSCloudwatchProcessor(Processor, ABC):
             logger.error(f"Exception occurred while testing cloudwatch connection with error: {e}")
             raise e
 
-    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, end_time_epoch: int = None,
-                                         start_time_epoch: int = None, dimensions: Dict = None, period: int = 300,
-                                         statistic: str = 'Average'):
+    def cloudwatch_get_metric_statistics(self, namespace: str, metric: str, dimensions: Dict = None, period: int = 300,
+                                         statistic: str = 'Average', start_time_epoch: int = None,
+                                         end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:
@@ -124,8 +124,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
                 f"Exception occurred while fetching cloudwatch metric statistics for metric: {metric} with error: {e}")
             raise e
 
-    def logs_filter_events(self, log_group: str, query_pattern: str, end_time_epoch: int = None,
-                           start_time_epoch: int = None):
+    def logs_filter_events(self, log_group: str, query_pattern: str, start_time_epoch: int = None,
+                           end_time_epoch: int = None):
         if not end_time_epoch:
             end_time_epoch = current_epoch()
         if not start_time_epoch:
@@ -175,8 +175,8 @@ class AWSCloudwatchProcessor(Processor, ABC):
                     logger.info("Query took too long to complete. Aborting...")
                     stop_query_response = client.stop_query(queryId=query_id)
                     logger.info(f"Query stopped with response: {stop_query_response}")
-                    return None
-            return None
+                    raise Exception("Query took too long to complete. Aborting...")
+            raise Exception(f"Query failed with status: {status}")
         except Exception as e:
             logger.error(f"Exception occurred while fetching logs for log_group: {log_group} with error: {e}")
             raise e

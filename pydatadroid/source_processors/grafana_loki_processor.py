@@ -11,7 +11,7 @@ from pydatadroid.utils.proto_utils import proto_to_dict
 logger = logging.getLogger(__name__)
 
 
-class GrafanaLokiApiProcessor(Processor):
+class GrafanaLokiProcessor(Processor):
     client = None
 
     def __init__(self, host, port, protocol, x_scope_org_id='anonymous', ssl_verify=True):
@@ -20,7 +20,6 @@ class GrafanaLokiApiProcessor(Processor):
         self.__port = port
         self.__ssl_verify = ssl_verify
         self.__headers = {'X-Scope-OrgID': x_scope_org_id}
-
 
     def get_connection(self):
         try:
@@ -44,19 +43,19 @@ class GrafanaLokiApiProcessor(Processor):
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e
 
-    def query(self, query, start: int=None, end: int=None, limit=1000):
+    def query(self, query, limit=1000, start_time_epoch: int = None, end_time_epoch: int = None):
         try:
             url = '{}/loki/api/v1/query_range'.format(f"{self.__protocol}://{self.__host}:{self.__port}")
             params = {
                 'query': query,
-                'start': start,
-                'end': end,
+                'start': start_time_epoch,
+                'end': end_time_epoch,
                 'limit': limit
             }
             response = requests.get(url, headers=self.__headers, verify=self.__ssl_verify, params=params)
             if not response:
                 raise Exception("No data returned from Grafana Loki")
-            if response.status_code!=200:
+            if response.status_code != 200:
                 raise Exception(f"Failed to fetch data from Grafana Loki with error message: {response.text}")
             result = response.json().get('data', {}).get('result', [])
             table_rows: [TableResult.TableRow] = []
@@ -86,11 +85,11 @@ class GrafanaLokiApiProcessor(Processor):
             table = TableResult(raw_query=StringValue(value=f"Execute ```{query}```"),
                                 total_count=UInt64Value(value=len(result)),
                                 rows=table_rows)
-            result_proto = Result(
+            task_result = Result(
                 type=ResultType.LOGS,
                 logs=table
             )
-            return proto_to_dict(result_proto)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e

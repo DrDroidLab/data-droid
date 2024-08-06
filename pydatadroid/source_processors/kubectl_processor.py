@@ -87,7 +87,7 @@ class KubectlProcessor(Processor, ABC):
             logger.error(f"Exception occurred while executing kubectl command with error: {e}")
             raise e
 
-    def execute_command(self, command):
+    def execute_command(self, command: str):
         command = command.strip()
         if 'kubectl' in command:
             command = command.replace('kubectl', '')

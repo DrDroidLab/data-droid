@@ -11,7 +11,7 @@ from pydatadroid.utils.time_utils import current_epoch
 logger = logging.getLogger(__name__)
 
 
-class GrafanaMimirApiProcessor(Processor):
+class GrafanaMimirProcessor(Processor):
     client = None
 
     def __init__(self, mimir_host, mimir_port, mimir_protocol, x_scope_org_id='anonymous', ssl_verify=True):
@@ -43,8 +43,9 @@ class GrafanaMimirApiProcessor(Processor):
             logger.error(f"Exception occurred while querying mimir config with error: {e}")
             raise e
 
-    def query(self, query, start_time_epoch: int=None, end_time_epoch: int=None, step: int=300):
+    def query(self, query, step: int = 300, start_time_epoch: int = None, end_time_epoch: int = None):
         try:
+            task_result = Result()
             if not end_time_epoch:
                 end_time_epoch = current_epoch()
             if not start_time_epoch:
@@ -54,7 +55,7 @@ class GrafanaMimirApiProcessor(Processor):
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if not response:
                 raise Exception("No data returned from Grafana PromQL")
-            if response.status_code!=200:
+            if response.status_code != 200:
                 raise Exception(f"Failed to fetch data from Grafana PromQL with error message: {response.text}")
             result = response.json()
             if 'data' in result and 'result' in result['data']:
@@ -82,11 +83,8 @@ class GrafanaMimirApiProcessor(Processor):
                     metric_expression=StringValue(value=query),
                     labeled_metric_timeseries=labeled_metric_timeseries_list
                 )
-                mimir_request = Result(
-                    type=ResultType.TIMESERIES,
-                    timeseries=timeseries_result)
-            return proto_to_dict(mimir_request)
-
+                task_result = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)
+            return proto_to_dict(task_result)
         except Exception as e:
             logger.error(f"Exception occurred while getting mimir metric timeseries with error: {e}")
             raise e

@@ -46,19 +46,21 @@ class GrafanaPromqlProcessor(Processor):
             logger.error(f"Exception occurred while fetching grafana data sources with error: {e}")
             raise e
 
-    def query(self, promql_datasource_uid: str, query: str, start_time_epoch: int=None, end_time_epoch: int=None, step=300):
+    def query(self, promql_datasource_uid: str, query: str, step=300, start_time_epoch: int = None,
+              end_time_epoch: int = None):
         try:
             if not end_time_epoch:
                 end_time_epoch = current_epoch()
             if not start_time_epoch:
                 start_time_epoch = end_time_epoch - 3600
-
+            promql_request = Result()
             url = '{}/api/datasources/proxy/uid/{}/api/v1/query_range?query={}&start={}&end={}&step={}'.format(
-                f"{self.__protocol}://{self.__host}:{self.__port}", promql_datasource_uid, query, start_time_epoch, end_time_epoch, step)
+                f"{self.__protocol}://{self.__host}:{self.__port}", promql_datasource_uid, query, start_time_epoch,
+                end_time_epoch, step)
             response = requests.get(url, headers=self.headers, verify=self.__ssl_verify)
             if not response:
                 raise Exception("No data returned from Grafana PromQL")
-            if response.status_code!=200:
+            if response.status_code != 200:
                 raise Exception(f"Failed to fetch data from Grafana PromQL with error message: {response.text}")
             result = response.json()
             if 'data' in result and 'result' in result['data']:
@@ -86,9 +88,7 @@ class GrafanaPromqlProcessor(Processor):
                     metric_expression=StringValue(value=query),
                     labeled_metric_timeseries=labeled_metric_timeseries_list
                 )
-                promql_request = Result(
-                    type=ResultType.TIMESERIES,
-                    timeseries=timeseries_result)
+                promql_request = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)
             return proto_to_dict(promql_request)
         except Exception as e:
             logger.error(f"Exception occurred while getting promql metric timeseries with error: {e}")
