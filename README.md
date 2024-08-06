@@ -1,12 +1,6 @@
 # Data Droid - Python SDK for fetching data from various sources
 
-This is a library that will allow developers to fetch data from various sources.
-Currently supported sources are:
-
-- AWS Cloudwatch (metrics and logs)
-- Remote Servers (bash command execution)
-- Kubernetes (kubectl command execution)
-- Postgres (DB queries)
+This is a library that can connect to 16 data sources including Cloudwatch, Grafana, k8s clusters and more. See all connectors in [credentials_template.yaml](/test_credentials/credentials_template.yaml) file.
 
 ## Install the SDK
 
@@ -40,6 +34,7 @@ data = aws_cw_client.logs_filter_events(log_group="log_group_name",
                                         query_pattern="fields @timestamp, @message | limit 1")
 ```
 
+You can read tool level commands in this [file](/test_script.py) where test cases for all the connectors are written.
 The output is currently stored as a dictionary. We are following 6 standard formats basis the type of data. Read more about it [here](https://docs.drdroid.io/docs/data-output-formats).
 
 ## Contributing
