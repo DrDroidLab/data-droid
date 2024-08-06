@@ -77,8 +77,8 @@ class DataFactory:
         return ElasticSearchProcessor(protocol, host, port, api_key_id, api_key, verify_certs)
 
     @staticmethod
-    def get_new_relic_client(nr_api_key: str, nr_app_id: str, nr_api_domain: str = 'api.newrelic.com'):
-        return NewRelicProcessor(nr_api_key, nr_app_id, nr_api_domain)
+    def get_new_relic_client(nr_api_key: str, nr_account_id: str, nr_api_domain: str = 'api.newrelic.com'):
+        return NewRelicProcessor(nr_api_key, nr_account_id, nr_api_domain)
 
     @staticmethod
     def get_gke_client(project_id: str, service_account_json: Dict):

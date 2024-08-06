@@ -3,6 +3,7 @@ import re
 from abc import ABC
 from datetime import datetime
 
+import pytz
 from google.protobuf.wrappers_pb2 import StringValue, DoubleValue
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
@@ -24,9 +25,9 @@ def get_nrql_expression_result_alias(nrql_expression):
 
 
 class NewRelicProcessor(Processor, ABC):
-    def __init__(self, nr_api_key: str, nr_app_id: str, nr_api_domain: str = 'api.newrelic.com'):
+    def __init__(self, nr_api_key: str, nr_account_id: str, nr_api_domain: str = 'api.newrelic.com'):
         self.__nr_api_key = nr_api_key
-        self.nr_account_id = nr_app_id
+        self.nr_account_id = nr_account_id
         self.nr_api_domain = nr_api_domain
 
     def get_connection(self):
@@ -86,8 +87,8 @@ class NewRelicProcessor(Processor, ABC):
             nrql_expression = re.sub('limit max timeseries', 'TIMESERIES 5 MINUTE', nrql_expression,
                                      flags=re.IGNORECASE)
         if 'since' not in nrql_expression.lower():
-            time_since = start_time_epoch.time_geq
-            time_until = end_time_epoch.time_lt
+            time_since = start_time_epoch
+            time_until = end_time_epoch
             total_seconds = (time_until - time_since)
             nrql_expression = nrql_expression + f' SINCE {total_seconds} SECONDS AGO'
 
@@ -147,13 +148,7 @@ class NewRelicProcessor(Processor, ABC):
                     timestamp=int(utc_datetime.timestamp() * 1000), value=DoubleValue(value=val))
                 metric_datapoints.append(datapoint)
 
-            metric_label_values = [
-                LabelValuePair(name=StringValue(value='offset_seconds'), value=StringValue(value='0'))
-            ]
-            labeled_metric_timeseries_list = [
-                TimeseriesResult.LabeledMetricTimeseries(
-                    metric_label_values=metric_label_values, unit=StringValue(value=unit), datapoints=metric_datapoints)
-            ]
+            labeled_metric_timeseries_list = [TimeseriesResult.LabeledMetricTimeseries(datapoints=metric_datapoints)]
             timeseries_result = TimeseriesResult(metric_expression=StringValue(value=nrql_expression),
                                                  labeled_metric_timeseries=labeled_metric_timeseries_list)
             task_result = Result(type=ResultType.TIMESERIES, timeseries=timeseries_result)

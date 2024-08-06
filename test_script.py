@@ -310,3 +310,25 @@ if __name__ == '__main__':
                   "Moving to the next connector testing.")
     except Exception as e:
         print("\n Check test_script.py . Error in Testing code in gke: ", e)
+
+    try:
+        if 'new_relic' in config:
+            print("\n Testing New Relic Connector")
+            nr_api_key = config.get('new_relic', {}).get('nr_api_key')
+            nr_account_id = config.get('new_relic', {}).get('nr_account_id')
+            nr_api_domain = config.get('new_relic', {}).get('nr_api_domain', 'api.newrelic.com')
+
+            nr_client = DataFactory.get_new_relic_client(nr_api_key, nr_account_id, nr_api_domain)
+            if not nr_client.test_connection():
+                raise Exception("Connection to New Relic failed")
+            else:
+                print("\n Credentials successfully tested. Now running a sample query")
+                # Add your query here
+                nrql_expression = "SELECT rate(count(newrelic.goldenmetrics.apm.application.throughput), 1 MINUTES) AS 'Throughput' FROM Metric WHERE entity.guid in ('MzY2MjU4OXxBUE18QVBQTElDQVRJT058MTAyOTA0MjA3Mg') LIMIT MAX TIMESERIES"
+                nr_output = nr_client.execute_nrql_query(nrql_expression)
+                print("\n Sample output from New Relic:\n", trunc_dict(nr_output))
+        else:
+            print("\n New Relic credentials not found in the credentials.yaml file. "
+                  "Moving to the next connector testing.")
+    except Exception as e:
+        print("\n Check test_script.py . Error in Testing code in New Relic: ", e)
